@@ -1,0 +1,28 @@
+Town,Date,Collected_at,Temperature,Humidity,Pressure,Biostatus,Wind,Sunrise,Sunset,Weather,Real_feel
+omisalj,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24
+matulji,09.05.2020.,11:00,19,43,917,Povoljni uvjeti,povjetarac vjetar s juga (na Jadranu oštro),05:40,20:15,malo oblačno,19
+medveja,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24
+lovran,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24
+lipa,09.05.2020.,11:00,24,32,1014,Povoljni uvjeti,povjetarac vjetar s juga (na Jadranu oštro),05:36,20:11,vedro,24
+krasica,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24
+klenovica,09.05.2020.,11:00,18,65,1017,Povoljni uvjeti,povjetarac vjetar sa sjeverozapada (na Jadranu maestral),05:40,20:12,malo oblačno,18
+kastav,09.05.2020.,11:00,19,43,917,Povoljni uvjeti,povjetarac vjetar s juga (na Jadranu oštro),05:40,20:15,malo oblačno,19
+klana,09.05.2020.,11:00,19,43,917,Povoljni uvjeti,povjetarac vjetar s juga (na Jadranu oštro),05:40,20:15,malo oblačno,19
+grobnik,09.05.2020.,11:00,24,32,1014,Povoljni uvjeti,povjetarac vjetar s juga (na Jadranu oštro),05:36,20:11,vedro,24
+hreljin,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24
+fuzine,09.05.2020.,11:00,24,36,1014,Povoljni uvjeti,slab vjetar s jugozapada (na Jadranu lebić),05:40,20:13,vedro,25
+drazice,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24
+delnice,09.05.2020.,11:00,24,36,1014,Povoljni uvjeti,slab vjetar s jugozapada (na Jadranu lebić),05:40,20:13,vedro,25
+crikvenica,09.05.2020.,11:00,24,,,Povoljni uvjeti,povjetarac vjetar sa zapada (na Jadranu pulenat),05:41,20:14,malo oblačno,24
+bribir,09.05.2020.,11:00,22,41,1016,Povoljni uvjeti,lahor vjetar s juga (na Jadranu oštro),05:38,20:04,umjereno oblačno,24
+brgud,09.05.2020.,11:00,22,41,1016,Povoljni uvjeti,lahor vjetar s juga (na Jadranu oštro),05:38,20:04,umjereno oblačno,24
+bakar,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24
+bakarac,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24
+baska,09.05.2020.,11:00,18,65,1017,Povoljni uvjeti,povjetarac vjetar sa sjeverozapada (na Jadranu maestral),05:40,20:12,malo oblačno,18
+rubesi,09.05.2020.,11:00,19,43,917,Povoljni uvjeti,povjetarac vjetar s juga (na Jadranu oštro),05:40,20:15,malo oblačno,19
+rijeka,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24
+opatija,09.05.2020.,11:00,23,35,1014,Povoljni uvjeti,slab vjetar s jugozapada (na Jadranu lebić),05:34,20:10,umjereno oblačno,24
+jadranovo,09.05.2020.,11:00,24,,,Povoljni uvjeti,povjetarac vjetar sa zapada (na Jadranu pulenat),05:41,20:14,malo oblačno,24
+vrata,09.05.2020.,11:00,24,36,1014,Povoljni uvjeti,slab vjetar s jugozapada (na Jadranu lebić),05:40,20:13,vedro,25
+selce,09.05.2020.,11:00,24,,,Povoljni uvjeti,povjetarac vjetar sa zapada (na Jadranu pulenat),05:41,20:14,malo oblačno,24
+veprinac,09.05.2020.,11:00,20,45,1017,Povoljni uvjeti,slab,05:41,20:15,malo oblačno,24

@@ -18,21 +18,23 @@ def list_title(list):
     return ret_list
 
 # get autocorrelation
-def get_autocorrelation(data, names):
-    filter_dates = ['10.05.2020.', '11.05.2020.', ]  # list of dates we want to filer
+def get_autocorrelation(data, names, autocorr_column):
+    filter_dates = ['10.05.2020.', ]  # list of dates we want to filer
+    # filter_dates = list(data.ffill().sort_values('Date')['Date'].unique()[1:])   # list of dates we want to filer, after change od 23:30 must try removing [1:]
     dict_autocorrelation = {}
     # 2 loops: filter all days and all towns
     for date in filter_dates:
         dict_temp = {}
         for name in names:
             by_name = data.loc[(data['Town'] == name) & (data['Date'] == date)].sort_values(by='Collected_at')  # filter dataFrame
-            dict_temp[name] = by_name['Temperature'].autocorr(lag=-1)
+            dict_temp[name] = by_name[autocorr_column].autocorr(lag=-1)
         dict_autocorrelation[date] = dict_temp
 
     return dict_autocorrelation
 
 def daily_temp(data, names):
-    filter_dates = ['10.05.2020.', ]    # list of dates we want to filer
+    filter_dates = ['10.05.2020.', ]  # list of dates we want to filer
+    # filter_dates = list(data.ffill().sort_values('Date')['Date'].unique()[1:])   # list of dates we want to filer, after change od 23:30 must try removing [1:]
     # 2 loops: filter all days and all towns
     for date in filter_dates:
         for name in names:
@@ -52,8 +54,8 @@ def main():
     df_data_pgz, df_geolocation, df_distance, df_altitude = import_csv_file()   # call function to import data from files
     unique_towns = list(df_altitude.sort_values(by='Town')['Town'])     # get unique names of towns ordered by name
     # daily_temp(data=df_data_pgz, names=unique_towns)  # call function to plot temperature by date for all places
-    autocorrelation = get_autocorrelation(data=df_data_pgz, names=unique_towns) # call function to get nested dict of autocorrelation for all places by date
-    print(autocorrelation.get('11.05.2020.').values())
+    autocorrelation = get_autocorrelation(data=df_data_pgz, names=unique_towns, autocorr_column='Temperature') # call function to get nested dict of autocorrelation for all places by date
+    print(autocorrelation)
 
 
 # call main function

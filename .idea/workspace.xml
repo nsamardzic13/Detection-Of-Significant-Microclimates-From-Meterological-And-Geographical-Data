@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e338172d-b86c-4849-86cc-786439f51bf3" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/data_scraping_vrijeme_net.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_pgz.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_scraping.py" beforeDir="false" afterPath="$PROJECT_DIR$/old_data_scraping.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_scraping_vrijeme.net.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_pgz.csv" beforeDir="false" afterPath="$PROJECT_DIR$/data_pgz.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_scraping_vrijeme_net.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_scraping_vrijeme_net.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/detection_main.py" beforeDir="false" afterPath="$PROJECT_DIR$/detection_main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +34,11 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
   <component name="RunManager" selected="Python.detection_main">
     <configuration name="DetectionOfSignificantMicroclimatesFromMeterologicalAndGeographicalData" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="DetectionOfSignificantMicroclimatesFromMeterologicalAndGeographicalData" />
@@ -48,6 +53,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="data" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="DetectionOfSignificantMicroclimatesFromMeterologicalAndGeographicalData" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -146,10 +172,12 @@
       <item itemvalue="Python.data_scraping_vrijeme_net" />
       <item itemvalue="Python.old_data_scraping" />
       <item itemvalue="Python.detection_main" />
+      <item itemvalue="Python.data" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.detection_main" />
+        <item itemvalue="Python.data" />
         <item itemvalue="Python.get_geolocation" />
         <item itemvalue="Python.data_scraping_vrijeme_net" />
         <item itemvalue="Python.old_data_scraping" />
@@ -188,32 +216,32 @@
       <screen x="0" y="28" width="1920" height="1024" />
     </state>
     <state x="743" y="298" width="426" height="483" key="FileChooserDialogImpl/1920.0.1920.1080/0.28.1920.1024@0.28.1920.1024" timestamp="1588947259899" />
-    <state width="1897" height="285" key="GridCell.Tab.0.bottom" timestamp="1590440509761">
+    <state width="1897" height="285" key="GridCell.Tab.0.bottom" timestamp="1590496771260">
       <screen x="0" y="28" width="3840" height="1024" />
     </state>
     <state width="1897" height="267" key="GridCell.Tab.0.bottom/0.28.1920.1024@0.28.1920.1024" timestamp="1590415561490" />
-    <state width="1897" height="285" key="GridCell.Tab.0.bottom/0.28.3840.1024@0.28.3840.1024" timestamp="1590440509761" />
+    <state width="1897" height="285" key="GridCell.Tab.0.bottom/0.28.3840.1024@0.28.3840.1024" timestamp="1590496771260" />
     <state width="1898" height="356" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.28.1920.1024@0.28.1920.1024" timestamp="1588976886189" />
     <state width="1898" height="288" key="GridCell.Tab.0.bottom/1920.0.1920.1080/0.28.1920.1024@1920.0.1920.1080" timestamp="1588960851877" />
-    <state width="1897" height="285" key="GridCell.Tab.0.center" timestamp="1590440509760">
+    <state width="1897" height="285" key="GridCell.Tab.0.center" timestamp="1590496771259">
       <screen x="0" y="28" width="3840" height="1024" />
     </state>
     <state width="1897" height="267" key="GridCell.Tab.0.center/0.28.1920.1024@0.28.1920.1024" timestamp="1590415561490" />
-    <state width="1897" height="285" key="GridCell.Tab.0.center/0.28.3840.1024@0.28.3840.1024" timestamp="1590440509760" />
+    <state width="1897" height="285" key="GridCell.Tab.0.center/0.28.3840.1024@0.28.3840.1024" timestamp="1590496771259" />
     <state width="1898" height="356" key="GridCell.Tab.0.center/1920.0.1920.1080/0.28.1920.1024@0.28.1920.1024" timestamp="1588976886189" />
     <state width="1898" height="288" key="GridCell.Tab.0.center/1920.0.1920.1080/0.28.1920.1024@1920.0.1920.1080" timestamp="1588960851876" />
-    <state width="1897" height="285" key="GridCell.Tab.0.left" timestamp="1590440509759">
+    <state width="1897" height="285" key="GridCell.Tab.0.left" timestamp="1590496771258">
       <screen x="0" y="28" width="3840" height="1024" />
     </state>
     <state width="1897" height="267" key="GridCell.Tab.0.left/0.28.1920.1024@0.28.1920.1024" timestamp="1590415561489" />
-    <state width="1897" height="285" key="GridCell.Tab.0.left/0.28.3840.1024@0.28.3840.1024" timestamp="1590440509759" />
+    <state width="1897" height="285" key="GridCell.Tab.0.left/0.28.3840.1024@0.28.3840.1024" timestamp="1590496771258" />
     <state width="1898" height="356" key="GridCell.Tab.0.left/1920.0.1920.1080/0.28.1920.1024@0.28.1920.1024" timestamp="1588976886188" />
     <state width="1898" height="288" key="GridCell.Tab.0.left/1920.0.1920.1080/0.28.1920.1024@1920.0.1920.1080" timestamp="1588960851876" />
-    <state width="1897" height="285" key="GridCell.Tab.0.right" timestamp="1590440509761">
+    <state width="1897" height="285" key="GridCell.Tab.0.right" timestamp="1590496771259">
       <screen x="0" y="28" width="3840" height="1024" />
     </state>
     <state width="1897" height="267" key="GridCell.Tab.0.right/0.28.1920.1024@0.28.1920.1024" timestamp="1590415561490" />
-    <state width="1897" height="285" key="GridCell.Tab.0.right/0.28.3840.1024@0.28.3840.1024" timestamp="1590440509761" />
+    <state width="1897" height="285" key="GridCell.Tab.0.right/0.28.3840.1024@0.28.3840.1024" timestamp="1590496771259" />
     <state width="1898" height="356" key="GridCell.Tab.0.right/1920.0.1920.1080/0.28.1920.1024@0.28.1920.1024" timestamp="1588976886189" />
     <state width="1898" height="288" key="GridCell.Tab.0.right/1920.0.1920.1080/0.28.1920.1024@1920.0.1920.1080" timestamp="1588960851877" />
     <state width="1898" height="356" key="GridCell.Tab.1.bottom" timestamp="1588976886189">

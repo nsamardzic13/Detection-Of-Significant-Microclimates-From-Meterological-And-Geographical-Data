@@ -2,7 +2,6 @@ import urllib3
 import csv
 from bs4 import BeautifulSoup
 import os
-import re
 
 towns = ['Omisalj', 'Matulji', 'Medveja', 'Lovran', 'Lipa', 'Krasica', 'Klenovica', 'Kastav', 'Klana', 'Grobnik', 'Hreljin', 'Fuzine', 'Drazice',
          'Delnice', 'Crikvenica', 'Bribir', 'Brgud', 'Bakar', 'Bakarac', 'Baska', 'Rubesi', 'Rijeka', 'Opatija', 'Jadranovo', 'Vrata',

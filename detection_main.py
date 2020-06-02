@@ -53,7 +53,7 @@ def daily_temp(data, names):
 def main():
     df_data_pgz, df_geolocation, df_distance, df_altitude = import_csv_file()   # call function to import data from files
     unique_towns = list(df_altitude.sort_values(by='Town')['Town'])     # get unique names of towns ordered by name
-    # daily_temp(data=df_data_pgz, names=unique_towns)  # call function to plot temperature by date for all places
+    daily_temp(data=df_data_pgz, names=unique_towns)  # call function to plot temperature by date for all places
     autocorrelation = get_autocorrelation(data=df_data_pgz, names=unique_towns, autocorr_column='Temperature') # call function to get nested dict of autocorrelation for all places by date
     print(autocorrelation)
 

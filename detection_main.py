@@ -3,11 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # define global variables
+autocorrelation_text = ' these towns have microclimates based on autocorrelation throughout day: '
 autocorrelation_difference = 0.10   # x% differene
 def_height = 100    # max height difference
 def_dist = 50       # max distance difference
 def_cnt = 3         # number of towns around
-autocorrelation_text = ' these towns have microclimates based on autocorrelation throughout day: '
 
 # get data from csv files
 def import_csv_file():
@@ -56,6 +56,7 @@ def daily_temp(data, filter_dates, names, res_dict):
         plt.legend(list_title(list=names), loc='upper right')
         plt.grid()
         plt.show()
+        plt.figure()
 
 # print microclimates towns
 def print_towns(data, message):
@@ -90,23 +91,42 @@ def check_microclimates(data, filter_dates, names, allowed_difference , distance
 
     return ret_dict
 
+def svd_print(data, names, dates):
+    for i, name in enumerate(names):
+        plt.plot(dates, data[:, i], label=name)
+    plt.grid()
+    plt.legend()
+    plt.show()
+
 # define main funcion
 def main():
     df_data_pgz, df_geolocation, df_distance, df_altitude = import_csv_file()   # call function to import data from files
     unique_towns = list(df_altitude.sort_values(by='Town')['Town'])     # get unique names of towns ordered by name
-    filter_dates = list(df_data_pgz.ffill()['Date'].unique()[1:])  # list of dates we want to filer, after change od 23:30 - try removing [1:]
+    filter_dates = list(df_data_pgz.ffill()['Date'].unique())  # list of dates we want to filer, after change od 23:30 - try removing [1:]
 
-    # call functions to get microclimates values based on autocorrelation
-    autocorrelation = get_autocorrelation(data=df_data_pgz, filter_dates=filter_dates, names=unique_towns, autocorr_column='Temperature') # call function to get nested dict of autocorrelation for all places by date
-    microclimates_autocorrelation = check_microclimates(data=autocorrelation, filter_dates=filter_dates, names=unique_towns,
-                                                        allowed_difference=autocorrelation_difference, distance=df_distance, altitude=df_altitude) #check if we have microclimates
-    # output of microclimates based on autocorrelation
-    if microclimates_autocorrelation:
-        dates_microclimates = list(microclimates_autocorrelation.keys())    #get dates when we have towns with microclimates
-        print_towns(microclimates_autocorrelation, autocorrelation_text)    #print towns and dates with microclimates
-        daily_temp(data=df_data_pgz, filter_dates=dates_microclimates, names=unique_towns, res_dict=microclimates_autocorrelation)  # call function to plot temperature by date for all places
-    else:
-        print('There are no towns with microclimates with current variables')
+    # # call functions to get microclimates values based on autocorrelation
+    # autocorrelation = get_autocorrelation(data=df_data_pgz, filter_dates=filter_dates, names=unique_towns, autocorr_column='Temperature') # call function to get nested dict of autocorrelation for all places by date
+    # microclimates_autocorrelation = check_microclimates(data=autocorrelation, filter_dates=filter_dates, names=unique_towns,
+    #                                                     allowed_difference=autocorrelation_difference, distance=df_distance, altitude=df_altitude) #check if we have microclimates
+    # # output of microclimates based on autocorrelation
+    # if microclimates_autocorrelation:
+    #     dates_microclimates = list(microclimates_autocorrelation.keys())    #get dates when we have towns with microclimates
+    #     print_towns(microclimates_autocorrelation, autocorrelation_text)    #print towns and dates with microclimates
+    #     daily_temp(data=df_data_pgz, filter_dates=dates_microclimates, names=unique_towns, res_dict=microclimates_autocorrelation)  # call function to plot temperature by date for all places
+    # else:
+    #     print('There are no towns with microclimates with current variables')
+
+    # build 2d array having shape (filter_dates, unique_towns) and average temperatures
+    df_svd = df_data_pgz.loc[:, ['Town', 'Date', 'Temperature']].groupby(['Town', 'Date'])['Temperature'].mean()
+    mean_temp_1d = np.array(df_svd, dtype=np.float)
+    svd_A = np.reshape(mean_temp_1d, (len(filter_dates), len(unique_towns)))
+
+    # build matrix U, S, V
+    svd_U, svd_S, svd_V = np.linalg.svd(svd_A, full_matrices=False)
+    # print('A: ' + str(svd_A.shape) + ' \nU: ' + str(svd_U.shape) +  '\nS: ' + str(svd_S.shape) +  '\nV: ' + str(svd_V.shape))
+    # reconstruct matrix Ar
+    svd_Ar = np.dot(svd_U * svd_S, svd_V)
+    svd_print(data=svd_Ar, names=unique_towns, dates=filter_dates)
 
 # call main function
 if __name__ == "__main__":

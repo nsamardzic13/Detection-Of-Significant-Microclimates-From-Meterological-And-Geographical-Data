@@ -1,3 +1,4 @@
 # ignore data file because of size
-
 data_pgz.csv
+venv/
+07-28_IvicMail/

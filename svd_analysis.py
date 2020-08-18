@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 # Settings
 csv_filename = 'data_pgz_fixed.csv'
 field = 'Temperature'
-dt_min = pd.to_datetime('2020-05-11 00:00:00')
-dt_max = pd.to_datetime('2020-06-10 00:00:00')
+dt_min = pd.to_datetime('2020-05-15 00:00:00')
+dt_max = pd.to_datetime('2020-07-15 00:00:00')
 k = 3
 
 # Read CSV file
@@ -56,7 +56,7 @@ print(U.shape)
 print(S.shape)
 print(V.shape)
 
-plt.figure(tight_layout=True)
+fig = plt.figure(tight_layout=True)
 plt.bar(np.arange(np.size(S)), np.cumsum(S / np.sum(S)), width=0.5)
 plt.bar(np.arange(np.size(S)), S / np.sum(S), width=0.2)
 for i in range(np.size(S)):
@@ -65,9 +65,10 @@ for i in range(np.size(S)):
 plt.xlabel('Rang sustava')
 plt.ylabel('Preciznost rekonstrukcije')
 plt.grid(ls=':')
+fig.savefig(f'svd_rank_precision_{field}.png')
 
 # dates to concept
-plt.figure(tight_layout=True)
+fig = plt.figure(tight_layout=True)
 for i in range(k):
     plt.plot(df.index, U[:, i], label='k=' + str(i))
 
@@ -75,10 +76,11 @@ for i in range(k):
 plt.title('Dates to concept for k = ' + str(k))
 plt.legend()
 plt.grid(ls=':')
+fig.savefig(f'svd_date_concepts_{field}.png')
 
 
 # towns to concept
-plt.figure(tight_layout=True)
+fig = plt.figure(tight_layout=True)
 xticks = np.arange(len(locations))
 plt.xticks(xticks, labels=locations, rotation=90)
 w = 1 / (3 + k)
@@ -91,17 +93,19 @@ for i in range(k):
 plt.title('Towns to concept for k = ' + str(k))
 plt.legend()
 plt.grid(ls=':')
+fig.savefig(f'svd_location_concepts_{field}.png')
 
 
 # lower rank reconstruction - matrix svd_Ar
 Ar = np.dot(U[:,:k] * S[:k], V[:k, :])
 svd_err = np.average(np.abs(A - Ar), axis=0)
 axis_range = np.arange(0, len(locations))
-plt.figure()
+fig = plt.figure()
 plt.xticks(axis_range, locations, rotation=90)
 plt.bar(axis_range, svd_err) 
 plt.xlabel('Lokacije')
 plt.ylabel(f'Prosječno apsolutno odstupanje rekonstrukcije s rangom k={k} [°C]')
+fig.savefig(f'svd_location_errors_{field}.png')
 
 
 print('Making time series plots')

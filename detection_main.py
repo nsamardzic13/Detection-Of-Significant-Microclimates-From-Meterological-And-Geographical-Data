@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 # define global variables
 autocorrelation_text = ' these towns have microclimates based on autocorrelation throughout day: '
@@ -46,24 +47,24 @@ def get_autocorrelation(data, filter_dates, names, autocorr_column):
 
     return dict_autocorrelation
 
-def plot_temp(data, filter_dates, names, res_dict, weather):
+def plot_temp(data, filter_dates, res_dict, plot_dict, weather):
    # 2 loops: filter all days and all towns
-    for date in filter_dates:
-        for name in names:
-            by_name = data.loc[(data['Town'] == name) & (data['Date'] == date)].sort_values(by='Collected_at') # filter dataFrame
-            x_values = list(by_name['Collected_at']) # get x values: time
-            y_values = list(by_name['Temperature']) # get y values: temperature
-            if name in res_dict[date]:
-                plt.plot(x_values, y_values, alpha=0.6, linewidth=4)
-            else:
-                plt.plot(x_values, y_values, alpha=0.4, ls='--')
+   for date in filter_dates:
+       names = list(set(res_dict[date] + plot_dict[date]))
+       for name in names:
+           by_name = data.loc[(data['Town'] == name) & (data['Date'] == date)].sort_values(by='Collected_at') # filter dataFrame
+           x_values = list(by_name['Collected_at']) # get x values: time
+           y_values = list(by_name['Temperature']) # get y values: temperature
+           if name in res_dict[date]:
+               plt.plot(x_values, y_values, alpha=0.8, linewidth=4)
+           elif name in plot_dict[date]:
+               plt.plot(x_values, y_values, alpha=0.4)
 
-        # add title, legend and gird to every plot
-        plt.title('Temperature for ' + str(date) + '(' + weather + ')')
-        plt.legend(list_title(list=names), loc='upper right')
-        plt.grid()
-        plt.show()
-        plt.figure()
+       # add title, legend and gird to every plot
+       plt.title('Temperature for ' + str(date) + '(' + weather + ')')
+       plt.legend(list_title(list=names), loc='upper right')
+       plt.grid()
+       plt.show()
 
 # print microclimates towns
 def print_towns(data, message):
@@ -76,14 +77,16 @@ def print_towns(data, message):
 def check_microclimates(data, filter_dates, names, allowed_difference , distance, altitude,
                         diff_height=def_height, diff_dist=def_dist, default_cnt=def_cnt):
     ret_dict = {}
+    plot_dict = {}
     for date in filter_dates:
         tmp_list = []
-        i = 0
+        tmp_plot_list = []
         for name in names:
             tmp_cnt = 0
-            i = i + 1
             # altitude_value = altitude.loc[(altitude['Town'] == name)]['Elevation'].item()
-            for name2 in names[i:]:
+            for name2 in names:
+                if name == name2:
+                    continue
                 abs_diff = np.abs(data[date][name] - data[date][name2]) / data[date][name]
                 # towns_distance = distance.loc[(distance['Town1'] == name) & (distance['Town2'] == name2)]['Distance'].item()
                 # town_altitude = altitude.loc[(altitude['Town'] == name2)]['Elevation'].item()
@@ -91,12 +94,15 @@ def check_microclimates(data, filter_dates, names, allowed_difference , distance
                     # if towns_distance < diff_dist and np.abs(altitude_value - town_altitude) < diff_height:
                     #     tmp_cnt = tmp_cnt + 1
                     tmp_cnt = tmp_cnt + 1
+                    if name2 not in tmp_plot_list:
+                        tmp_plot_list.append(name2)
             if tmp_cnt > default_cnt:
                 tmp_list.append(name)
         if tmp_list:
             ret_dict[date] = tmp_list
+            plot_dict[date] = tmp_plot_list
 
-    return ret_dict
+    return ret_dict, plot_dict
 
 # plot svd
 def svd_plot(data, names, dates):
@@ -116,21 +122,23 @@ def main():
     for weather in autocorrelation_weather_condition:
         autocorrelation_days = get_dates(df_data_pgz, weather)
         autocorrelation = get_autocorrelation(data=df_data_pgz, filter_dates=autocorrelation_days, names=unique_towns, autocorr_column='Temperature') # call function to get nested dict of autocorrelation for all places by date
-        microclimates_autocorrelation = check_microclimates(data=autocorrelation, filter_dates=autocorrelation_days, names=unique_towns,
+        microclimates_autocorrelation, plot_dict = check_microclimates(data=autocorrelation, filter_dates=autocorrelation_days, names=unique_towns,
                                                             allowed_difference=autocorrelation_difference, distance=df_distance, altitude=df_altitude) #check if we have microclimates
         # output of microclimates based on autocorrelation
         print('For days with weather description: ' + weather)
         if microclimates_autocorrelation:
             dates_microclimates = list(microclimates_autocorrelation.keys())    #get dates when we have towns with microclimates
             print_towns(microclimates_autocorrelation, autocorrelation_text)    #print towns and dates with microclimates
-            plot_temp(data=df_data_pgz, filter_dates=dates_microclimates, names=unique_towns, res_dict=microclimates_autocorrelation, weather=weather)  # call function to plot temperature by date for all places
+            # plot_temp(data=df_data_pgz, filter_dates=dates_microclimates, res_dict=microclimates_autocorrelation, plot_dict=plot_dict, weather=weather)  # call function to plot temperature by date for all places
         else:
             print('There are no towns with microclimates with current variables')
 
     # build 2d array having shape (filter_dates, unique_towns) and average temperatures
     df_svd = df_data_pgz.loc[:, ['Town', 'Date', 'Temperature']].groupby(['Town', 'Date'])['Temperature'].mean()
     mean_temp_1d = np.array(df_svd, dtype=np.float)
-    svd_A = np.reshape(mean_temp_1d, (len(filter_dates), len(unique_towns)))
+    # svd_A = np.reshape(mean_temp_1d, (len(filter_dates), len(unique_towns)))
+    svd_A = np.reshape(mean_temp_1d, (len(unique_towns), len(filter_dates)))
+    svd_A = svd_A.transpose()
 
     # build matrix U, S, V
     svd_U, svd_S, svd_V = np.linalg.svd(svd_A, full_matrices=False)
@@ -144,10 +152,11 @@ def main():
     svd_Ar = np.dot(svd_U * svd_S, svd_V)
     print('Diff: ' + str(np.mean(np.abs(svd_A - svd_Ar))))
     svd_plot(data=svd_Ar, names=unique_towns, dates=filter_dates)
-
+    a1,a2,a3 = svd_U.shape, svd_S.shape, svd_V.shape
     # lower rank reconstruction - matrix svd_Ar
     k = 3
     svd_Ar = np.dot(svd_U[:,:k] * svd_S[:k], svd_V[:k, :])
+
     svd_err = np.average(np.abs(svd_A - svd_Ar), axis=0)
     asix_range = np.arange(0, len(unique_towns))
     unique_towns_sliced = [town[0:4] for town in unique_towns]
@@ -156,8 +165,9 @@ def main():
     plt.xlabel('Lokacije')
     plt.ylabel(f'Prosječno apsolutno odstupanje rekonstrukcije s rangom k={k} [°C]')
     plt.show()
+
     svd_plot(data=svd_Ar, names=unique_towns, dates=filter_dates)
-    print('Diff: ' + str(np.mean(np.abs(svd_A-svd_Ar))))
+    print('Diff for k=' + str(k) + ': ' + str(np.mean(np.abs(svd_A-svd_Ar))))
 
     # dates to concept
     for i in range(k):
@@ -166,7 +176,6 @@ def main():
     plt.title('Dates to concept for k = ' + str(k))
     plt.legend()
     plt.grid()
-    #plt.show()
     plt.figure()
 
     # towns to concept

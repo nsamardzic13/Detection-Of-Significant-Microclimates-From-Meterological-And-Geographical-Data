@@ -58,14 +58,13 @@ def plot_temp(data, filter_dates, res_dict, plot_dict, weather):
            if name in res_dict[date]:
                plt.plot(x_values, y_values, alpha=0.8, linewidth=4)
            elif name in plot_dict[date]:
-               plt.plot(x_values, y_values, alpha=0.4, ls='--')
+               plt.plot(x_values, y_values, alpha=0.4)
 
        # add title, legend and gird to every plot
        plt.title('Temperature for ' + str(date) + '(' + weather + ')')
        plt.legend(list_title(list=names), loc='upper right')
        plt.grid()
        plt.show()
-       plt.figure()
 
 # print microclimates towns
 def print_towns(data, message):
@@ -137,7 +136,9 @@ def main():
     # build 2d array having shape (filter_dates, unique_towns) and average temperatures
     df_svd = df_data_pgz.loc[:, ['Town', 'Date', 'Temperature']].groupby(['Town', 'Date'])['Temperature'].mean()
     mean_temp_1d = np.array(df_svd, dtype=np.float)
-    svd_A = np.reshape(mean_temp_1d, (len(filter_dates), len(unique_towns)))
+    # svd_A = np.reshape(mean_temp_1d, (len(filter_dates), len(unique_towns)))
+    svd_A = np.reshape(mean_temp_1d, (len(unique_towns), len(filter_dates)))
+    svd_A = svd_A.transpose()
 
     # build matrix U, S, V
     svd_U, svd_S, svd_V = np.linalg.svd(svd_A, full_matrices=False)
@@ -151,10 +152,11 @@ def main():
     svd_Ar = np.dot(svd_U * svd_S, svd_V)
     print('Diff: ' + str(np.mean(np.abs(svd_A - svd_Ar))))
     svd_plot(data=svd_Ar, names=unique_towns, dates=filter_dates)
-
+    a1,a2,a3 = svd_U.shape, svd_S.shape, svd_V.shape
     # lower rank reconstruction - matrix svd_Ar
     k = 3
     svd_Ar = np.dot(svd_U[:,:k] * svd_S[:k], svd_V[:k, :])
+
     svd_err = np.average(np.abs(svd_A - svd_Ar), axis=0)
     asix_range = np.arange(0, len(unique_towns))
     unique_towns_sliced = [town[0:4] for town in unique_towns]
@@ -163,6 +165,7 @@ def main():
     plt.xlabel('Lokacije')
     plt.ylabel(f'Prosječno apsolutno odstupanje rekonstrukcije s rangom k={k} [°C]')
     plt.show()
+
     svd_plot(data=svd_Ar, names=unique_towns, dates=filter_dates)
     print('Diff for k=' + str(k) + ': ' + str(np.mean(np.abs(svd_A-svd_Ar))))
 
@@ -173,7 +176,6 @@ def main():
     plt.title('Dates to concept for k = ' + str(k))
     plt.legend()
     plt.grid()
-    #plt.show()
     plt.figure()
 
     # towns to concept

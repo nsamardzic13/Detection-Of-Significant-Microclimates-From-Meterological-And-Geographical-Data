@@ -134,6 +134,12 @@ def main():
 
     # build matrix U, S, V
     svd_U, svd_S, svd_V = np.linalg.svd(svd_A, full_matrices=False)
+    print(svd_S / np.sum(svd_S))
+
+    plt.bar(np.arange(np.size(svd_S)), np.cumsum(svd_S / np.sum(svd_S)))
+    plt.xlabel('Rang sustava')
+    plt.ylabel('Preciznost rekonstrukcije')
+    plt.show()
     # full reconstruction - matrix svd_Ar
     svd_Ar = np.dot(svd_U * svd_S, svd_V)
     print('Diff: ' + str(np.mean(np.abs(svd_A - svd_Ar))))
@@ -142,6 +148,14 @@ def main():
     # lower rank reconstruction - matrix svd_Ar
     k = 3
     svd_Ar = np.dot(svd_U[:,:k] * svd_S[:k], svd_V[:k, :])
+    svd_err = np.average(np.abs(svd_A - svd_Ar), axis=0)
+    asix_range = np.arange(0, len(unique_towns))
+    unique_towns_sliced = [town[0:4] for town in unique_towns]
+    plt.plot(svd_err) 
+    plt.xticks(asix_range, unique_towns_sliced)
+    plt.xlabel('Lokacije')
+    plt.ylabel(f'Prosječno apsolutno odstupanje rekonstrukcije s rangom k={k} [°C]')
+    plt.show()
     svd_plot(data=svd_Ar, names=unique_towns, dates=filter_dates)
     print('Diff: ' + str(np.mean(np.abs(svd_A-svd_Ar))))
 
@@ -152,17 +166,19 @@ def main():
     plt.title('Dates to concept for k = ' + str(k))
     plt.legend()
     plt.grid()
-    plt.show()
+    #plt.show()
+    plt.figure()
 
     # towns to concept
     asix_range = np.arange(0, len(unique_towns))
     unique_towns_sliced = [town[0:4] for town in unique_towns]
     for i in range(k):
         plt.xticks(asix_range, unique_towns_sliced)
-        plt.bar(asix_range, svd_V[i, :], label='k=' + str(i), alpha=k*0.2)
+        plt.bar(asix_range + i / (1 + k), svd_V[i, :], label='k=' + str(i), alpha=k*0.2, width=1 / (1 + k))
     plt.title('Towns to concept for k = ' + str(k))
     plt.legend()
     plt.show()
+
 # call main function
 if __name__ == "__main__":
     main()

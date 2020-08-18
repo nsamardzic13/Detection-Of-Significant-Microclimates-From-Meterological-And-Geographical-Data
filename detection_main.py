@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import math
 
 # define global variables
 autocorrelation_text = ' these towns have microclimates based on autocorrelation throughout day: '
@@ -9,7 +8,7 @@ autocorrelation_weather_condition = ['vedro', 'kiša', 'malo oblačno']
 autocorrelation_difference = 0.15   # x% differene
 def_height = 100    # max height difference
 def_dist = 50       # max distance difference
-def_cnt = 10         # number of towns around
+def_cnt = 13         # number of towns around
 
 # get data from csv files
 def import_csv_file():
@@ -152,7 +151,6 @@ def main():
     svd_Ar = np.dot(svd_U * svd_S, svd_V)
     print('Diff: ' + str(np.mean(np.abs(svd_A - svd_Ar))))
     svd_plot(data=svd_Ar, names=unique_towns, dates=filter_dates)
-    a1,a2,a3 = svd_U.shape, svd_S.shape, svd_V.shape
     # lower rank reconstruction - matrix svd_Ar
     k = 3
     svd_Ar = np.dot(svd_U[:,:k] * svd_S[:k], svd_V[:k, :])

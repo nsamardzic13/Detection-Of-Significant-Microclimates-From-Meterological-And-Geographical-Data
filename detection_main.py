@@ -54,7 +54,7 @@ def plot_temp(data_geo, data_temp, filter_dates, res_dict, plot_dict, weather):
    # 2 loops: filter all days and all towns
    for date in filter_dates:
        names = list(set(res_dict[date] + plot_dict[date]))
-       img = plt.imread('./map.png')
+       img = plt.imread('./map2.png')
        fig, ax = plt.subplots(figsize=(8, 7))
        fig2, ax2 = plt.subplots(figsize=(8, 7))
        for name in names:
@@ -145,7 +145,7 @@ def main():
         if microclimates_autocorrelation:
             dates_microclimates = list(microclimates_autocorrelation.keys())    #get dates when we have towns with microclimates
             print_towns(microclimates_autocorrelation, autocorrelation_text)    #print towns and dates with microclimates
-            # plot_temp(data_geo=df_geolocation, data_temp=df_data_pgz ,filter_dates=dates_microclimates, res_dict=microclimates_autocorrelation, plot_dict=plot_dict, weather=weather)  # call function to plot temperature by date for all places
+            plot_temp(data_geo=df_geolocation, data_temp=df_data_pgz ,filter_dates=dates_microclimates, res_dict=microclimates_autocorrelation, plot_dict=plot_dict, weather=weather)  # call function to plot temperature by date for all places
         else:
             print('There are no towns with microclimates with current variables')
 

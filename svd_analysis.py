@@ -47,7 +47,6 @@ df = df.interpolate(method='linear')[dt_min:dt_max]
 preprocesed_csv_filenmae = f'preprocessed_data_{field}.csv'
 print(f'Saving preprocessed data to {preprocesed_csv_filenmae}')    
 df.to_csv(preprocesed_csv_filenmae)
-
 print('Doing SVD')
 A = np.array(df)
 #np.savetxt('A.txt', A) # For debugging
@@ -71,7 +70,7 @@ fig.savefig(f'Figures/svd_rank_precision_{field}.png')
 fig = plt.figure(tight_layout=True)
 for i in range(k):
     plt.plot(df.index, U[:, i], label='k=' + str(i))
-
+    plt.show()
 
 plt.title('Dates to concept for k = ' + str(k))
 plt.legend()

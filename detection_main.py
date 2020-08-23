@@ -18,7 +18,9 @@ def import_csv_file():
     df_geolocation = pd.read_csv('geolocation.csv').sort_values(by='Town')
     df_distance = pd.read_csv('distance.csv').sort_values(by=['Town1', 'Town2',])
     df_altitude = pd.read_csv('nadmorska_visina.csv').sort_values(by='Town')
-    return df_data_pgz, df_geolocation, df_distance, df_altitude
+    df_svd = pd.read_csv('data_svd.csv', index_col=0)
+    df_svd.index = pd.to_datetime(df_svd.index)
+    return df_data_pgz, df_geolocation, df_distance, df_altitude, df_svd
 
 # format list to have first letter uppercase
 def list_title(list):
@@ -46,23 +48,38 @@ def get_autocorrelation(data, filter_dates, names, autocorr_column):
 
     return dict_autocorrelation
 
-def plot_temp(data, filter_dates, res_dict, plot_dict, weather):
+def plot_temp(data_geo, data_temp, filter_dates, res_dict, plot_dict, weather):
+   dimension = (data_geo['Lng'].min(), data_geo['Lng'].max(), data_geo['Lat'].min(), data_geo['Lat'].max())
+   min_lng, max_lng, min_lat, max_lat = dimension[0], dimension[1], dimension[2], dimension[3]
    # 2 loops: filter all days and all towns
    for date in filter_dates:
        names = list(set(res_dict[date] + plot_dict[date]))
+       img = plt.imread('./map.png')
+       fig, ax = plt.subplots(figsize=(8, 7))
+       fig2, ax2 = plt.subplots(figsize=(8, 7))
        for name in names:
-           by_name = data.loc[(data['Town'] == name) & (data['Date'] == date)].sort_values(by='Collected_at') # filter dataFrame
-           x_values = list(by_name['Collected_at']) # get x values: time
-           y_values = list(by_name['Temperature']) # get y values: temperature
+           by_name = data_temp.loc[(data_temp['Town'] == name) & (data_temp['Date'] == date)].sort_values(by='Collected_at')  # filter dataFrame
+           x_values = list(by_name['Collected_at'])  # get x values: time
+           y_values = list(by_name['Temperature'])  # get y values: temperature
+           current_lat = float(data_geo.loc[(data_geo['Town'] == name)]['Lat'])
+           current_lng = float(data_geo.loc[(data_geo['Town'] == name)]['Lng'])
            if name in res_dict[date]:
-               plt.plot(x_values, y_values, alpha=0.8, linewidth=4)
+               ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='b', s=20, label=name)
+               ax2.plot(x_values, y_values, alpha=0.8, linewidth=4)
+
            elif name in plot_dict[date]:
-               plt.plot(x_values, y_values, alpha=0.4)
+               ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='r', s=20)
+               ax2.plot(x_values, y_values, alpha=0.4)
 
        # add title, legend and gird to every plot
-       plt.title('Temperature for ' + str(date) + '(' + weather + ')')
-       plt.legend(list_title(list=names), loc='upper right')
-       plt.grid()
+       ax2.set_title('Temperature for ' + str(date) + '(' + weather + ')')
+       ax2.legend(list_title(list=names), loc='upper right')
+       ax2.grid()
+       ax.set_title('Microclimates on ' + str(date) + '( ' + weather + ' )')
+       ax.set_xlim([min_lng, max_lng])
+       ax.set_ylim([min_lat, max_lat])
+       ax.legend(loc='upper right')
+       ax.imshow(img, zorder=0, extent=dimension, aspect='equal')
        plt.show()
 
 # print microclimates towns
@@ -113,7 +130,7 @@ def svd_plot(data, names, dates):
 
 # define main funcion
 def main():
-    df_data_pgz, df_geolocation, df_distance, df_altitude = import_csv_file()   # call function to import data from files
+    df_data_pgz, df_geolocation, df_distance, df_altitude, df_svd = import_csv_file()   # call function to import data from files
     unique_towns = list(df_altitude.sort_values(by='Town')['Town'])     # get unique names of towns ordered by name
     filter_dates = list(df_data_pgz.ffill()['Date'].unique())  # list of dates we want to filer, after change od 23:30 - try removing [1:]
 
@@ -128,16 +145,13 @@ def main():
         if microclimates_autocorrelation:
             dates_microclimates = list(microclimates_autocorrelation.keys())    #get dates when we have towns with microclimates
             print_towns(microclimates_autocorrelation, autocorrelation_text)    #print towns and dates with microclimates
-            # plot_temp(data=df_data_pgz, filter_dates=dates_microclimates, res_dict=microclimates_autocorrelation, plot_dict=plot_dict, weather=weather)  # call function to plot temperature by date for all places
+            # plot_temp(data_geo=df_geolocation, data_temp=df_data_pgz ,filter_dates=dates_microclimates, res_dict=microclimates_autocorrelation, plot_dict=plot_dict, weather=weather)  # call function to plot temperature by date for all places
         else:
             print('There are no towns with microclimates with current variables')
 
     # build 2d array having shape (filter_dates, unique_towns) and average temperatures
-    df_svd = df_data_pgz.loc[:, ['Town', 'Date', 'Temperature']].groupby(['Town', 'Date'])['Temperature'].mean()
-    mean_temp_1d = np.array(df_svd, dtype=np.float)
-    # svd_A = np.reshape(mean_temp_1d, (len(filter_dates), len(unique_towns)))
-    svd_A = np.reshape(mean_temp_1d, (len(unique_towns), len(filter_dates)))
-    svd_A = svd_A.transpose()
+
+    svd_A = np.array(df_svd)
 
     # build matrix U, S, V
     svd_U, svd_S, svd_V = np.linalg.svd(svd_A, full_matrices=False)
@@ -147,29 +161,28 @@ def main():
     plt.xlabel('Rang sustava')
     plt.ylabel('Preciznost rekonstrukcije')
     plt.show()
+
     # full reconstruction - matrix svd_Ar
     svd_Ar = np.dot(svd_U * svd_S, svd_V)
     print('Diff: ' + str(np.mean(np.abs(svd_A - svd_Ar))))
-    svd_plot(data=svd_Ar, names=unique_towns, dates=filter_dates)
     # lower rank reconstruction - matrix svd_Ar
     k = 3
     svd_Ar = np.dot(svd_U[:,:k] * svd_S[:k], svd_V[:k, :])
 
     svd_err = np.average(np.abs(svd_A - svd_Ar), axis=0)
     asix_range = np.arange(0, len(unique_towns))
-    unique_towns_sliced = [town[0:4] for town in unique_towns]
     plt.plot(svd_err) 
-    plt.xticks(asix_range, unique_towns_sliced)
+    plt.xticks(asix_range, unique_towns, rotation=90)
     plt.xlabel('Lokacije')
     plt.ylabel(f'Prosječno apsolutno odstupanje rekonstrukcije s rangom k={k} [°C]')
     plt.show()
 
-    svd_plot(data=svd_Ar, names=unique_towns, dates=filter_dates)
     print('Diff for k=' + str(k) + ': ' + str(np.mean(np.abs(svd_A-svd_Ar))))
+    # svd_plot(data=svd_Ar, names=unique_towns, dates=filter_dates)
 
     # dates to concept
     for i in range(k):
-        plt.plot(filter_dates, svd_U[:, i], label='k=' + str(i))
+        plt.plot(df_svd.index, svd_U[:, i], label='k=' + str(i))
 
     plt.title('Dates to concept for k = ' + str(k))
     plt.legend()
@@ -178,9 +191,8 @@ def main():
 
     # towns to concept
     asix_range = np.arange(0, len(unique_towns))
-    unique_towns_sliced = [town[0:4] for town in unique_towns]
     for i in range(k):
-        plt.xticks(asix_range, unique_towns_sliced)
+        plt.xticks(asix_range, unique_towns, rotation=90)
         plt.bar(asix_range + i / (1 + k), svd_V[i, :], label='k=' + str(i), alpha=k*0.2, width=1 / (1 + k))
     plt.title('Towns to concept for k = ' + str(k))
     plt.legend()

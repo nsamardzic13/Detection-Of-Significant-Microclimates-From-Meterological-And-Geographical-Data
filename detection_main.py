@@ -73,7 +73,7 @@ def plot_temp(data_geo, data_temp, filter_dates, res_dict, plot_dict, weather):
 
        # add title, legend and gird to every plot
        ax2.set_title('Temperature for ' + str(date) + '(' + weather + ')')
-       ax2.legend(list_title(list=names), loc='upper right')
+       ax2.legend(list_title(list=names), loc='upper right', title='blue=microclimates')
        ax2.grid()
        ax.set_title('Microclimates on ' + str(date) + '( ' + weather + ' )')
        ax.set_xlim([min_lng, max_lng])
@@ -149,8 +149,7 @@ def main():
         else:
             print('There are no towns with microclimates with current variables')
 
-    # build 2d array having shape (filter_dates, unique_towns) and average temperatures
-
+    # build 2d array having shape (unique_towns, date+collected_at) and average temperatures
     svd_A = np.array(df_svd)
 
     # build matrix U, S, V

@@ -64,7 +64,7 @@ for i in range(np.size(S)):
 plt.xlabel('Rang sustava')
 plt.ylabel('Preciznost rekonstrukcije')
 plt.grid(ls=':')
-fig.savefig(f'Figures/svd_rank_precision_{field}.png')
+#fig.savefig(f'Figures/svd_rank_precision_{field}.png')
 
 # dates to concept
 fig = plt.figure(tight_layout=True)
@@ -75,7 +75,7 @@ for i in range(k):
 plt.title('Dates to concept for k = ' + str(k))
 plt.legend()
 plt.grid(ls=':')
-fig.savefig(f'Figures/svd_date_concepts_{field}.png')
+#fig.savefig(f'Figures/svd_date_concepts_{field}.png')
 
 
 # towns to concept
@@ -92,7 +92,7 @@ for i in range(k):
 plt.title('Towns to concept for k = ' + str(k))
 plt.legend()
 plt.grid(ls=':')
-fig.savefig(f'Figures/svd_location_concepts_{field}.png')
+#fig.savefig(f'Figures/svd_location_concepts_{field}.png')
 
 
 # lower rank reconstruction - matrix svd_Ar
@@ -104,7 +104,7 @@ plt.xticks(axis_range, locations, rotation=90)
 plt.bar(axis_range, svd_err) 
 plt.xlabel('Lokacije')
 plt.ylabel(f'Prosječno apsolutno odstupanje rekonstrukcije s rangom k={k} [°C]')
-fig.savefig(f'Figures/svd_location_errors_{field}.png')
+#fig.savefig(f'Figures/svd_location_errors_{field}.png')
 
 
 print('Making time series plots')
@@ -133,5 +133,5 @@ for iloc, location in enumerate(locations):
     
     plt.legend(legend_handles, legend_labels)
     plt.ylim(df[location].min() - 2, df[location].max() + 2)
-    fig.savefig(f'Figures/svd_reconstruction_plot_{field.lower()}_{location}.png', dpi=90)
+    #fig.savefig(f'Figures/svd_reconstruction_plot_{field.lower()}_{location}.png', dpi=90)
     plt.close(fig)

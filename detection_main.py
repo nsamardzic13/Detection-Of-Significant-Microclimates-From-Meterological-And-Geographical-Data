@@ -73,12 +73,12 @@ def plot_temp(data_geo, data_temp, filter_dates, res_dict, plot_dict, weather):
 
        # add title, legend and gird to every plot
        ax2.set_title('Temperature for ' + str(date) + '(' + weather + ')')
-       ax2.legend(list_title(list=names), loc='upper right', title='blue=microclimates')
+       ax2.legend(list_title(list=names), loc='upper right')
        ax2.grid()
        ax.set_title('Microclimates on ' + str(date) + '( ' + weather + ' )')
        ax.set_xlim([min_lng, max_lng])
        ax.set_ylim([min_lat, max_lat])
-       ax.legend(loc='upper right')
+       ax.legend(loc='upper right', title='blue=microclimates')
        ax.imshow(img, zorder=0, extent=dimension, aspect='equal')
        plt.show()
 

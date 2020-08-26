@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 # define global variables
 autocorrelation_text = ' these towns have microclimates based on autocorrelation throughout day: '
@@ -48,6 +49,8 @@ def get_autocorrelation(data, filter_dates, names, autocorr_column):
 
     return dict_autocorrelation
 
+# plot temperatues on days with microclimates
+# plot towns on a map
 def plot_temp(data_geo, data_temp, filter_dates, res_dict, plot_dict, weather):
    dimension = (data_geo['Lng'].min(), data_geo['Lng'].max(), data_geo['Lat'].min(), data_geo['Lat'].max())
    min_lng, max_lng, min_lat, max_lat = dimension[0], dimension[1], dimension[2], dimension[3]
@@ -128,6 +131,51 @@ def svd_plot(data, names, dates):
     plt.legend()
     plt.show()
 
+# reconstruct temperatures of unique towns using svd
+def reconstruct_temperatures(unique_towns, df_svd, svd_A, svd_U, svd_S, svd_V, k):
+    print('Making SVD plot for unique towns')
+    for iloc, location in enumerate(unique_towns):
+        fig = plt.figure(figsize=(20, 10), tight_layout=True)
+        legend_handles = []
+        legend_labels = []
+
+        plt_orig, = plt.plot(df_svd[location], marker='o', ls='', c='r', ms=1)
+        legend_handles.append(plt_orig)
+        legend_labels.append('Original data')
+
+        a_cum = np.zeros(svd_A.shape[0])
+        for i in range(k):
+            a_k = np.dot(svd_U[:, i] * svd_S[i], svd_V[i, iloc])
+            flbtw_k = plt.fill_between(df_svd.index, a_cum, a_cum + a_k, alpha=0.3, label='k= ' + str(i))
+            legend_handles.append(flbtw_k)
+            legend_labels.append('k= ' + str(i))
+            a_cum += a_k
+
+        plt_recon, = plt.plot(df_svd.index, a_cum, marker='s', ls='--', c='b', lw=1, ms=1)
+        legend_handles.append(plt_recon)
+        legend_labels.append('Reconstruction')
+
+        plt.legend(legend_handles, legend_labels)
+        plt.ylim(df_svd[location].min() - 2, df_svd[location].max() + 2)
+        fig.savefig('./Reconstruct_temp/svd_reconstruction_plot_temperature_' + str(location) + '.png', dpi=90)
+        plt.close(fig)
+
+def plot_svd_map(unique_towns, vector, k, data_geo):
+    dimension = (data_geo['Lng'].min(), data_geo['Lng'].max(), data_geo['Lat'].min(), data_geo['Lat'].max())
+    min_lng, max_lng, min_lat, max_lat = dimension[0], dimension[1], dimension[2], dimension[3]
+    img = plt.imread('./map2.png')
+    fig, ax = plt.subplots(figsize=(8, 7))
+    for i, town in enumerate(unique_towns):
+        current_lat = float(data_geo.loc[(data_geo['Town'] == town)]['Lat'])
+        current_lng = float(data_geo.loc[(data_geo['Town'] == town)]['Lng'])
+        ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='b', s=20, label=town)
+
+    ax.set_title('Towns for k =' + str(k))
+    ax.set_xlim([min_lng, max_lng])
+    ax.set_ylim([min_lat, max_lat])
+    ax.legend(loc='upper left', bbox_to_anchor=(1,1))
+    ax.imshow(img, zorder=0, extent=dimension, aspect='equal')
+
 # define main funcion
 def main():
     df_data_pgz, df_geolocation, df_distance, df_altitude, df_svd = import_csv_file()   # call function to import data from files
@@ -193,38 +241,16 @@ def main():
     for i in range(k):
         plt.xticks(asix_range, unique_towns, rotation=90)
         plt.bar(asix_range + i / (1 + k), svd_V[i, :], label='k=' + str(i), alpha=k*0.2, width=1 / (1 + k))
-        print(str(i) + ' ' + str((svd_V[i, :])))
     plt.title('Towns to concept for k = ' + str(k))
     plt.legend()
     plt.show()
 
+    for i in range(k):
+        plot_svd_map(unique_towns=unique_towns, vector=svd_V[i, :], k=i, data_geo=df_geolocation)
+    plt.show()
+
     # SVD reconstruction temperature
-    print('Making SVD plot for unique towns')
-    for iloc, location in enumerate(unique_towns):
-        fig = plt.figure(figsize=(20, 10), tight_layout=True)
-        legend_handles = []
-        legend_labels = []
-
-        plt_orig, = plt.plot(df_svd[location], marker='o', ls='', c='r', ms=1)
-        legend_handles.append(plt_orig)
-        legend_labels.append('Original data')
-
-        a_cum = np.zeros(svd_A.shape[0])
-        for i in range(k):
-            a_k = np.dot(svd_U[:, i] * svd_S[i], svd_V[i, iloc])
-            flbtw_k = plt.fill_between(df_svd.index, a_cum, a_cum + a_k, alpha=0.3, label='k= ' + str(i))
-            legend_handles.append(flbtw_k)
-            legend_labels.append('k= ' + str(i))
-            a_cum += a_k
-
-        plt_recon, = plt.plot(df_svd.index, a_cum, marker='s', ls='--', c='b', lw=1, ms=1)
-        legend_handles.append(plt_recon)
-        legend_labels.append('Reconstruction')
-
-        plt.legend(legend_handles, legend_labels)
-        plt.ylim(df_svd[location].min() - 2, df_svd[location].max() + 2)
-        fig.savefig('./Reconstruct_temp/svd_reconstruction_plot_temperature_' + str(location) + '.png', dpi=90)
-        plt.close(fig)
+    # reconstruct_temperatures(unique_towns=unique_towns, df_svd=df_svd, svd_A=svd_A, svd_U=svd_U, svd_S=svd_S, svd_V=svd_V, k=k)
 
 
 # call main function

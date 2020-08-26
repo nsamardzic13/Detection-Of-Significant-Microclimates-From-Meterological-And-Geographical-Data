@@ -132,20 +132,20 @@ def svd_plot(data, names, dates):
 def main():
     df_data_pgz, df_geolocation, df_distance, df_altitude, df_svd = import_csv_file()   # call function to import data from files
     unique_towns = list(df_altitude.sort_values(by='Town')['Town'])     # get unique names of towns ordered by name
-    filter_dates = list(df_data_pgz.ffill()['Date'].unique())  # list of dates we want to filer, after change od 23:30 - try removing [1:]
+    # filter_dates = list(df_data_pgz.ffill()['Date'].unique())  # list of dates we want to filer, after change od 23:30 - try removing [1:]
 
     # call functions to get microclimates values based on autocorrelation
     for weather in autocorrelation_weather_condition:
         autocorrelation_days = get_dates(df_data_pgz, weather)
         autocorrelation = get_autocorrelation(data=df_data_pgz, filter_dates=autocorrelation_days, names=unique_towns, autocorr_column='Temperature') # call function to get nested dict of autocorrelation for all places by date
         microclimates_autocorrelation, plot_dict = check_microclimates(data=autocorrelation, filter_dates=autocorrelation_days, names=unique_towns,
-                                                            allowed_difference=autocorrelation_difference, distance=df_distance, altitude=df_altitude) #check if we have microclimates
+                                                                       allowed_difference=autocorrelation_difference, distance=df_distance, altitude=df_altitude) #check if we have microclimates
         # output of microclimates based on autocorrelation
         print('For days with weather description: ' + weather)
         if microclimates_autocorrelation:
             dates_microclimates = list(microclimates_autocorrelation.keys())    #get dates when we have towns with microclimates
             print_towns(microclimates_autocorrelation, autocorrelation_text)    #print towns and dates with microclimates
-            plot_temp(data_geo=df_geolocation, data_temp=df_data_pgz ,filter_dates=dates_microclimates, res_dict=microclimates_autocorrelation, plot_dict=plot_dict, weather=weather)  # call function to plot temperature by date for all places
+            # plot_temp(data_geo=df_geolocation, data_temp=df_data_pgz ,filter_dates=dates_microclimates, res_dict=microclimates_autocorrelation, plot_dict=plot_dict, weather=weather)  # call function to plot temperature by date for all places
         else:
             print('There are no towns with microclimates with current variables')
 
@@ -170,7 +170,7 @@ def main():
 
     svd_err = np.average(np.abs(svd_A - svd_Ar), axis=0)
     asix_range = np.arange(0, len(unique_towns))
-    plt.plot(svd_err) 
+    plt.plot(svd_err)
     plt.xticks(asix_range, unique_towns, rotation=90)
     plt.xlabel('Lokacije')
     plt.ylabel(f'Prosječno apsolutno odstupanje rekonstrukcije s rangom k={k} [°C]')
@@ -193,9 +193,39 @@ def main():
     for i in range(k):
         plt.xticks(asix_range, unique_towns, rotation=90)
         plt.bar(asix_range + i / (1 + k), svd_V[i, :], label='k=' + str(i), alpha=k*0.2, width=1 / (1 + k))
+        print(str(i) + ' ' + str((svd_V[i, :])))
     plt.title('Towns to concept for k = ' + str(k))
     plt.legend()
     plt.show()
+
+    # SVD reconstruction temperature
+    print('Making SVD plot for unique towns')
+    for iloc, location in enumerate(unique_towns):
+        fig = plt.figure(figsize=(20, 10), tight_layout=True)
+        legend_handles = []
+        legend_labels = []
+
+        plt_orig, = plt.plot(df_svd[location], marker='o', ls='', c='r', ms=1)
+        legend_handles.append(plt_orig)
+        legend_labels.append('Original data')
+
+        a_cum = np.zeros(svd_A.shape[0])
+        for i in range(k):
+            a_k = np.dot(svd_U[:, i] * svd_S[i], svd_V[i, iloc])
+            flbtw_k = plt.fill_between(df_svd.index, a_cum, a_cum + a_k, alpha=0.3, label='k= ' + str(i))
+            legend_handles.append(flbtw_k)
+            legend_labels.append('k= ' + str(i))
+            a_cum += a_k
+
+        plt_recon, = plt.plot(df_svd.index, a_cum, marker='s', ls='--', c='b', lw=1, ms=1)
+        legend_handles.append(plt_recon)
+        legend_labels.append('Reconstruction')
+
+        plt.legend(legend_handles, legend_labels)
+        plt.ylim(df_svd[location].min() - 2, df_svd[location].max() + 2)
+        fig.savefig('./Reconstruct_temp/svd_reconstruction_plot_temperature_' + str(location) + '.png', dpi=90)
+        plt.close(fig)
+
 
 # call main function
 if __name__ == "__main__":

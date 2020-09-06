@@ -51,37 +51,53 @@ def get_autocorrelation(data, filter_dates, names, autocorr_column):
 
 # plot temperatues on days with microclimates
 # plot towns on a map
-def plot_temp(data_geo, data_temp, filter_dates, res_dict, plot_dict, weather):
+def plot_temp(autocorr_data, data_geo, data_temp, filter_dates, res_dict, weather, names):
    dimension = (data_geo['Lng'].min(), data_geo['Lng'].max(), data_geo['Lat'].min(), data_geo['Lat'].max())
    min_lng, max_lng, min_lat, max_lat = dimension[0], dimension[1], dimension[2], dimension[3]
    # 2 loops: filter all days and all towns
    for date in filter_dates:
-       names = list(set(res_dict[date] + plot_dict[date]))
        img = plt.imread('./map2.png')
        fig, ax = plt.subplots(figsize=(8, 7))
        fig2, ax2 = plt.subplots(figsize=(8, 7))
+       fig3, ax3 = plt.subplots(figsize=(8, 7))
        for name in names:
-           by_name = data_temp.loc[(data_temp['Town'] == name) & (data_temp['Date'] == date)].sort_values(by='Collected_at')  # filter dataFrame
-           x_values = list(by_name['Collected_at'])  # get x values: time
-           y_values = list(by_name['Temperature'])  # get y values: temperature
+           by_name = data_temp.loc[(data_temp['Town'] == name) & (data_temp['Date'] == date)]  # filter dataFrame
+           # x_values = list(by_name['Collected_at'])  # get x values: time
+           current_avg = by_name['Temperature'].mean()  # get y values:
+           current_autocorr = autocorr_data[date][name]
            current_lat = float(data_geo.loc[(data_geo['Town'] == name)]['Lat'])
            current_lng = float(data_geo.loc[(data_geo['Town'] == name)]['Lng'])
            if name in res_dict[date]:
-               ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='b', s=20, label=name)
-               ax2.plot(x_values, y_values, alpha=0.8, linewidth=4)
+               ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='b', s=30, label=name)
+               # ax2.plot(x_values, y_values, alpha=0.8, linewidth=4)
+               ax2.bar(name, current_autocorr, alpha=0.9, width=0.8)
+               ax3.bar(name, current_avg, alpha=0.9, width=0.6)
 
-           elif name in plot_dict[date]:
-               ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='r', s=20)
-               ax2.plot(x_values, y_values, alpha=0.4)
+           else:
+               # ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='r', s=20)
+               # ax2.plot(x_values, y_values, alpha=0.4)
+               ax2.bar(name, current_autocorr, alpha=0.2, width=0.4)
+               ax3.bar(name, current_avg, alpha=0.2, width=0.3)
 
-       # add title, legend and gird to every plot
-       ax2.set_title('Temperature for ' + str(date) + '(' + weather + ')')
-       ax2.legend(list_title(list=names), loc='upper right')
-       ax2.grid()
+       # add title, legend etc to every plot
+       ax2.tick_params(axis='x', rotation=90)
+       ax2.set_title('Autocorrelation values for ' + str(date) + '(' + weather + ')')
+       ax2.legend(list_title(list=names), loc='upper left', bbox_to_anchor=(1, 1))
+       ax2.set_ylabel('Autocorrelation')
+
+
+       ax3.tick_params(axis='x', rotation=90)
+       ax3.set_title('Average temperature for ' + str(date) + '(' + weather + ')')
+       ax3.legend(list_title(list=names), loc='upper left', bbox_to_anchor=(1, 1))
+       ax3.set_ylabel('Temperature [°C]')
+
        ax.set_title('Microclimates on ' + str(date) + '( ' + weather + ' )')
        ax.set_xlim([min_lng, max_lng])
        ax.set_ylim([min_lat, max_lat])
-       ax.legend(loc='upper right', title='blue=microclimates')
+       ax.set_xticks([])
+       ax.set_yticks([])
+       # ax.legend(loc='upper left', bbox_to_anchor=(1, 1), title='blue=microclimates')
+       ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
        ax.imshow(img, zorder=0, extent=dimension, aspect='equal')
        plt.show()
 
@@ -96,7 +112,7 @@ def print_towns(data, message):
 def check_microclimates(data, filter_dates, names, allowed_difference , distance, altitude,
                         diff_height=def_height, diff_dist=def_dist, default_cnt=def_cnt):
     ret_dict = {}
-    plot_dict = {}
+    # plot_dict = {}
     for date in filter_dates:
         tmp_list = []
         tmp_plot_list = []
@@ -113,15 +129,16 @@ def check_microclimates(data, filter_dates, names, allowed_difference , distance
                     # if towns_distance < diff_dist and np.abs(altitude_value - town_altitude) < diff_height:
                     #     tmp_cnt = tmp_cnt + 1
                     tmp_cnt = tmp_cnt + 1
-                    if name2 not in tmp_plot_list:
-                        tmp_plot_list.append(name2)
+                    # if name2 not in tmp_plot_list:
+                    #     tmp_plot_list.append(name2)
             if tmp_cnt > default_cnt:
                 tmp_list.append(name)
         if tmp_list:
             ret_dict[date] = tmp_list
-            plot_dict[date] = tmp_plot_list
+            # plot_dict[date] = tmp_plot_list
 
-    return ret_dict, plot_dict
+    # return ret_dict, plot_dict
+    return ret_dict
 
 # plot svd
 def svd_plot(data, names, dates):
@@ -161,14 +178,24 @@ def reconstruct_temperatures(unique_towns, df_svd, svd_A, svd_U, svd_S, svd_V, k
         plt.close(fig)
 
 def plot_svd_map(unique_towns, vector, k, data_geo):
+    # color_map = plt.cm.BrBG
     dimension = (data_geo['Lng'].min(), data_geo['Lng'].max(), data_geo['Lat'].min(), data_geo['Lat'].max())
     min_lng, max_lng, min_lat, max_lat = dimension[0], dimension[1], dimension[2], dimension[3]
+    # all_lat = []
+    # all_lng = []
+    # for town in unique_towns:
+    #     current_lat = float(data_geo.loc[(data_geo['Town'] == town)]['Lat'])
+    #     current_lng = float(data_geo.loc[(data_geo['Town'] == town)]['Lng'])
+    #     all_lat.append(current_lat)
+    #     all_lng.append(current_lng)
+
     img = plt.imread('./map2.png')
     fig, ax = plt.subplots(figsize=(8, 7))
+    # ax.scatter(all_lng, all_lat, zorder=1, alpha=1, c=vector+100, s=40, cmap=color_map)
     for i, town in enumerate(unique_towns):
         current_lat = float(data_geo.loc[(data_geo['Town'] == town)]['Lat'])
         current_lng = float(data_geo.loc[(data_geo['Town'] == town)]['Lng'])
-        ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='b', s=20, label=town)
+        ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='b', s=30, label=town)
 
     ax.set_title('Towns for k =' + str(k))
     ax.set_xlim([min_lng, max_lng])
@@ -186,14 +213,15 @@ def main():
     for weather in autocorrelation_weather_condition:
         autocorrelation_days = get_dates(df_data_pgz, weather)
         autocorrelation = get_autocorrelation(data=df_data_pgz, filter_dates=autocorrelation_days, names=unique_towns, autocorr_column='Temperature') # call function to get nested dict of autocorrelation for all places by date
-        microclimates_autocorrelation, plot_dict = check_microclimates(data=autocorrelation, filter_dates=autocorrelation_days, names=unique_towns,
+        microclimates_autocorrelation = check_microclimates(data=autocorrelation, filter_dates=autocorrelation_days, names=unique_towns,
                                                                        allowed_difference=autocorrelation_difference, distance=df_distance, altitude=df_altitude) #check if we have microclimates
         # output of microclimates based on autocorrelation
         print('For days with weather description: ' + weather)
         if microclimates_autocorrelation:
             dates_microclimates = list(microclimates_autocorrelation.keys())    #get dates when we have towns with microclimates
             print_towns(microclimates_autocorrelation, autocorrelation_text)    #print towns and dates with microclimates
-            # plot_temp(data_geo=df_geolocation, data_temp=df_data_pgz ,filter_dates=dates_microclimates, res_dict=microclimates_autocorrelation, plot_dict=plot_dict, weather=weather)  # call function to plot temperature by date for all places
+            plot_temp(autocorr_data = autocorrelation,data_geo=df_geolocation, data_temp=df_data_pgz ,filter_dates=dates_microclimates,
+                      res_dict=microclimates_autocorrelation, weather=weather, names=unique_towns)  # call function to plot temperature by date for all places
         else:
             print('There are no towns with microclimates with current variables')
 
@@ -202,7 +230,7 @@ def main():
 
     # build matrix U, S, V
     svd_U, svd_S, svd_V = np.linalg.svd(svd_A, full_matrices=False)
-    print(svd_S / np.sum(svd_S))
+    # print(svd_S / np.sum(svd_S))
 
     plt.bar(np.arange(np.size(svd_S)), np.cumsum(svd_S / np.sum(svd_S)))
     plt.xlabel('Rang sustava')
@@ -248,6 +276,7 @@ def main():
     for i in range(k):
         plot_svd_map(unique_towns=unique_towns, vector=svd_V[i, :], k=i, data_geo=df_geolocation)
     plt.show()
+
 
     # SVD reconstruction temperature
     # reconstruct_temperatures(unique_towns=unique_towns, df_svd=df_svd, svd_A=svd_A, svd_U=svd_U, svd_S=svd_S, svd_V=svd_V, k=k)

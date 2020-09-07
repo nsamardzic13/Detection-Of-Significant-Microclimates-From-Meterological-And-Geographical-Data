@@ -178,29 +178,29 @@ def reconstruct_temperatures(unique_towns, df_svd, svd_A, svd_U, svd_S, svd_V, k
         plt.close(fig)
 
 def plot_svd_map(unique_towns, vector, k, data_geo):
-    # color_map = plt.cm.BrBG
+    color_map = plt.cm.seismic
     dimension = (data_geo['Lng'].min(), data_geo['Lng'].max(), data_geo['Lat'].min(), data_geo['Lat'].max())
     min_lng, max_lng, min_lat, max_lat = dimension[0], dimension[1], dimension[2], dimension[3]
-    # all_lat = []
-    # all_lng = []
-    # for town in unique_towns:
-    #     current_lat = float(data_geo.loc[(data_geo['Town'] == town)]['Lat'])
-    #     current_lng = float(data_geo.loc[(data_geo['Town'] == town)]['Lng'])
-    #     all_lat.append(current_lat)
-    #     all_lng.append(current_lng)
+    all_lat = []
+    all_lng = []
+    for town in unique_towns:
+        current_lat = float(data_geo.loc[(data_geo['Town'] == town)]['Lat'])
+        current_lng = float(data_geo.loc[(data_geo['Town'] == town)]['Lng'])
+        all_lat.append(current_lat)
+        all_lng.append(current_lng)
 
     img = plt.imread('./map2.png')
     fig, ax = plt.subplots(figsize=(8, 7))
-    # ax.scatter(all_lng, all_lat, zorder=1, alpha=1, c=vector+100, s=40, cmap=color_map)
-    for i, town in enumerate(unique_towns):
-        current_lat = float(data_geo.loc[(data_geo['Town'] == town)]['Lat'])
-        current_lng = float(data_geo.loc[(data_geo['Town'] == town)]['Lng'])
-        ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='b', s=30, label=town)
+    res_plt = ax.scatter(all_lng, all_lat, zorder=1, alpha=1, c=vector, s=40, cmap=color_map)
+    # for i, town in enumerate(unique_towns):
+    #     current_lat = float(data_geo.loc[(data_geo['Town'] == town)]['Lat'])
+    #     current_lng = float(data_geo.loc[(data_geo['Town'] == town)]['Lng'])
+    #     ax.scatter(current_lng, current_lat, zorder=1, alpha=1, c='b', s=30, label=town)
 
     ax.set_title('Towns for k =' + str(k))
     ax.set_xlim([min_lng, max_lng])
     ax.set_ylim([min_lat, max_lat])
-    ax.legend(loc='upper left', bbox_to_anchor=(1,1))
+    # ax.legend(labels=unique_towns, loc='upper left', bbox_to_anchor=(1,1))
     ax.imshow(img, zorder=0, extent=dimension, aspect='equal')
 
 # define main funcion
@@ -220,8 +220,8 @@ def main():
         if microclimates_autocorrelation:
             dates_microclimates = list(microclimates_autocorrelation.keys())    #get dates when we have towns with microclimates
             print_towns(microclimates_autocorrelation, autocorrelation_text)    #print towns and dates with microclimates
-            plot_temp(autocorr_data = autocorrelation,data_geo=df_geolocation, data_temp=df_data_pgz ,filter_dates=dates_microclimates,
-                      res_dict=microclimates_autocorrelation, weather=weather, names=unique_towns)  # call function to plot temperature by date for all places
+            # plot_temp(autocorr_data = autocorrelation,data_geo=df_geolocation, data_temp=df_data_pgz ,filter_dates=dates_microclimates,
+            #           res_dict=microclimates_autocorrelation, weather=weather, names=unique_towns)  # call function to plot temperature by date for all places
         else:
             print('There are no towns with microclimates with current variables')
 
@@ -243,12 +243,12 @@ def main():
     # lower rank reconstruction - matrix svd_Ar
     k = 3
     svd_Ar = np.dot(svd_U[:,:k] * svd_S[:k], svd_V[:k, :])
-
+    print('Diff reconstruction: ' + str(np.mean(np.abs(svd_A - svd_Ar))))
     svd_err = np.average(np.abs(svd_A - svd_Ar), axis=0)
     asix_range = np.arange(0, len(unique_towns))
     plt.plot(svd_err)
     plt.xticks(asix_range, unique_towns, rotation=90)
-    plt.xlabel('Lokacije')
+    plt.xlabel('Locations')
     plt.ylabel(f'Prosječno apsolutno odstupanje rekonstrukcije s rangom k={k} [°C]')
     plt.show()
 
@@ -276,7 +276,6 @@ def main():
     for i in range(k):
         plot_svd_map(unique_towns=unique_towns, vector=svd_V[i, :], k=i, data_geo=df_geolocation)
     plt.show()
-
 
     # SVD reconstruction temperature
     # reconstruct_temperatures(unique_towns=unique_towns, df_svd=df_svd, svd_A=svd_A, svd_U=svd_U, svd_S=svd_S, svd_V=svd_V, k=k)

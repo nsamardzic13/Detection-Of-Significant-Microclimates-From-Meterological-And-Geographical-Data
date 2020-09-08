@@ -47,6 +47,7 @@ df = df.interpolate(method='linear')[dt_min:dt_max]
 preprocesed_csv_filenmae = f'preprocessed_data_{field}.csv'
 print(f'Saving preprocessed data to {preprocesed_csv_filenmae}')    
 df.to_csv(preprocesed_csv_filenmae)
+
 print('Doing SVD')
 A = np.array(df)
 #np.savetxt('A.txt', A) # For debugging
@@ -64,18 +65,18 @@ for i in range(np.size(S)):
 plt.xlabel('Rang sustava')
 plt.ylabel('Preciznost rekonstrukcije')
 plt.grid(ls=':')
-#fig.savefig(f'Figures/svd_rank_precision_{field}.png')
+fig.savefig(f'svd_rank_precision_{field}.png')
 
 # dates to concept
 fig = plt.figure(tight_layout=True)
 for i in range(k):
     plt.plot(df.index, U[:, i], label='k=' + str(i))
-    plt.show()
+
 
 plt.title('Dates to concept for k = ' + str(k))
 plt.legend()
 plt.grid(ls=':')
-#fig.savefig(f'Figures/svd_date_concepts_{field}.png')
+fig.savefig(f'svd_date_concepts_{field}.png')
 
 
 # towns to concept
@@ -92,7 +93,7 @@ for i in range(k):
 plt.title('Towns to concept for k = ' + str(k))
 plt.legend()
 plt.grid(ls=':')
-#fig.savefig(f'Figures/svd_location_concepts_{field}.png')
+fig.savefig(f'svd_location_concepts_{field}.png')
 
 
 # lower rank reconstruction - matrix svd_Ar
@@ -104,34 +105,34 @@ plt.xticks(axis_range, locations, rotation=90)
 plt.bar(axis_range, svd_err) 
 plt.xlabel('Lokacije')
 plt.ylabel(f'Prosječno apsolutno odstupanje rekonstrukcije s rangom k={k} [°C]')
-#fig.savefig(f'Figures/svd_location_errors_{field}.png')
+fig.savefig(f'svd_location_errors_{field}.png')
 
 
 print('Making time series plots')
 
-for iloc, location in enumerate(locations):
-    print(f'Making SVD plot for {location}')
-    fig = plt.figure(figsize=(20, 10), tight_layout=True)
-    legend_handles = []
-    legend_labels = []
-
-    plt_orig, = plt.plot(df[location], marker='o', ls='', c='r', ms=1)    
-    legend_handles.append(plt_orig)
-    legend_labels.append('Original data')
-    
-    a_cum = np.zeros(A.shape[0])
-    for i in range(k):
-        a_k = np.dot(U[:,i] * S[i], V[i, iloc])
-        flbtw_k = plt.fill_between(df.index, a_cum, a_cum + a_k, alpha=0.3, label=f'k={i}')
-        legend_handles.append(flbtw_k)
-        legend_labels.append(f'k={i}')
-        a_cum += a_k
-    
-    plt_recon, = plt.plot(df.index, a_cum, marker='s', ls='--', c='b', lw=1, ms=1)    
-    legend_handles.append(plt_recon)
-    legend_labels.append('Reconstruction')
-    
-    plt.legend(legend_handles, legend_labels)
-    plt.ylim(df[location].min() - 2, df[location].max() + 2)
-    #fig.savefig(f'Figures/svd_reconstruction_plot_{field.lower()}_{location}.png', dpi=90)
-    plt.close(fig)
+# for iloc, location in enumerate(locations):
+#     print(f'Making SVD plot for {location}')
+#     fig = plt.figure(figsize=(20, 10), tight_layout=True)
+#     legend_handles = []
+#     legend_labels = []
+#
+#     plt_orig, = plt.plot(df[location], marker='o', ls='', c='r', ms=1)
+#     legend_handles.append(plt_orig)
+#     legend_labels.append('Original data')
+#
+#     a_cum = np.zeros(A.shape[0])
+#     for i in range(k):
+#         a_k = np.dot(U[:,i] * S[i], V[i, iloc])
+#         flbtw_k = plt.fill_between(df.index, a_cum, a_cum + a_k, alpha=0.3, label=f'k={i}')
+#         legend_handles.append(flbtw_k)
+#         legend_labels.append(f'k={i}')
+#         a_cum += a_k
+#
+#     plt_recon, = plt.plot(df.index, a_cum, marker='s', ls='--', c='b', lw=1, ms=1)
+#     legend_handles.append(plt_recon)
+#     legend_labels.append('Reconstruction')
+#
+#     plt.legend(legend_handles, legend_labels)
+#     plt.ylim(df[location].min() - 2, df[location].max() + 2)
+#     fig.savefig(f'svd_reconstruction_plot_{field.lower()}_{location}.png', dpi=90)
+#     plt.close(fig)

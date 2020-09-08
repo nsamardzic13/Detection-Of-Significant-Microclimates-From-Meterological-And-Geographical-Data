@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 fields = ['Temperature',]
+corr_percent = 0.99
 
 # get data from csv files
 def import_csv_file():
@@ -12,24 +13,43 @@ def import_csv_file():
     df_geolocation = pd.read_csv('geolocation.csv').sort_values(by='Town')
     return df_data_pgz, df_geolocation
 
-# format list to have first letter uppercase
-def list_title(list):
-    ret_list = []
-    for row in list:
-        ret_list.append(row.title())
-    return ret_list
-
 def get_correlation_matrix(data, towns, field):
-    ret_matrix = np.zeros((len(towns), len(towns))) - 100
+    towns_cnt = len(towns)
+    ret_matrix = np.zeros((towns_cnt, towns_cnt))
     for i, town1 in enumerate(towns):
         town1_values = np.array(data.loc[data['Town'] == town1][field])
         for j, town2 in enumerate(towns):
             town2_values = np.array(data.loc[data['Town'] == town2][field])
             ret_matrix[i,j] = np.correlate(town1_values, town2_values)[0]
 
-        ret_matrix[i] -= ret_matrix[i,i]
     return ret_matrix
 
+def plot_corr(cor, towns, field):
+    dict = {}
+    asix_range = np.arange(0, len(towns))
+    for i, town in enumerate(towns):
+        dict_list = []
+        fig = plt.figure(figsize=(13.5,8.0))
+        for j in range(len(towns)):
+            if i == j:
+                plt.bar(asix_range[j], cor[i][j], width=1)
+            else:
+                min_val = min([cor[i][i],cor[i][j]])
+                max_val = max([cor[i][i],cor[i][j]])
+                diff_res = min_val / max_val
+                if (diff_res > corr_percent):
+                    dict_list.append(towns[j])
+                plt.bar(asix_range[j], cor[i][j], width=0.6)
+
+        plt.axhline(y = cor[i,i], color='black', linewidth=2, alpha=0.4, label=str(cor[i,i]))
+        # plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        plt.xticks(asix_range, towns, rotation=90)
+        plt.yticks([])
+        plt.title(f'Correlation chart for {town.capitalize()}')
+        fig.savefig(f'Correlation/{field}_correlation_chart_{town}.png')
+        dict[town] = dict_list
+
+    return dict
 # define main funcion
 def main():
     df_data_pgz, df_geolocation = import_csv_file()   # call function to import data from files
@@ -37,7 +57,9 @@ def main():
 
     for field in fields:
         corr_matrix = get_correlation_matrix(data=df_data_pgz, towns=unique_towns, field=field)
-        print(corr_matrix)
+        corr_dict = plot_corr(cor=corr_matrix, towns=unique_towns, field=field)
+        for town in unique_towns:
+            print(f'{town}: {corr_dict[town]}')
 
 # call main function
 if __name__ == "__main__":

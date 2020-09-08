@@ -23,13 +23,13 @@ def plot_svd_map(unique_towns, vector, k, data_geo):
     fig, ax = plt.subplots(figsize=(8, 7))
     ax.scatter(all_lng, all_lat, zorder=1, alpha=1, c=vector, s=40, cmap=color_map)
 
-    ax.set_title('Towns for k =' + str(k))
+    ax.set_title(f'Towns for k = {k}')
     ax.set_xlim([min_lng, max_lng])
     ax.set_ylim([min_lat, max_lat])
     ax.imshow(img, zorder=0, extent=dimension, aspect='equal')
 
 # reconstruct temperatures of unique towns using svd
-def reconstruct_temperatures(unique_towns, df_svd, svd_A, svd_U, svd_S, svd_V, k):
+def reconstruct_temperatures(unique_towns, df_svd, svd_A, svd_U, svd_S, svd_V, k, label):
     print('Making SVD plot for unique towns')
     for iloc, location in enumerate(unique_towns):
         fig = plt.figure(figsize=(20, 10), tight_layout=True)
@@ -45,7 +45,7 @@ def reconstruct_temperatures(unique_towns, df_svd, svd_A, svd_U, svd_S, svd_V, k
             a_k = np.dot(svd_U[:, i] * svd_S[i], svd_V[i, iloc])
             flbtw_k = plt.fill_between(df_svd.index, a_cum, a_cum + a_k, alpha=0.3, label='k= ' + str(i))
             legend_handles.append(flbtw_k)
-            legend_labels.append('k= ' + str(i))
+            legend_labels.append(f'k= {i}')
             a_cum += a_k
 
         plt_recon, = plt.plot(df_svd.index, a_cum, marker='s', ls='--', c='b', lw=1, ms=1)
@@ -54,7 +54,7 @@ def reconstruct_temperatures(unique_towns, df_svd, svd_A, svd_U, svd_S, svd_V, k
 
         plt.legend(legend_handles, legend_labels)
         plt.ylim(df_svd[location].min() - 2, df_svd[location].max() + 2)
-        fig.savefig('./Reconstruct_temp/svd_reconstruction_plot_temperature_' + str(location) + '.png', dpi=90)
+        fig.savefig(f'./Reconstruct_temp/svd_reconstruction_plot_{label}_{location}.png', dpi=90)
         plt.close(fig)
 
 # define main funcion
@@ -102,7 +102,7 @@ def main():
         for i in range(k):
             plt.plot(df_svd.index, svd_U[:, i], label='k=' + str(i))
 
-        plt.title('Dates to concept for k = ' + str(k))
+        plt.title(f'Dates to concept for k = {k}')
         plt.legend()
         plt.grid()
         plt.figure()
@@ -112,7 +112,7 @@ def main():
         for i in range(k):
             plt.xticks(asix_range, unique_towns, rotation=90)
             plt.bar(asix_range + i / (1 + k), svd_V[i, :], label='k=' + str(i), alpha=k*0.2, width=1 / (1 + k))
-        plt.title('Towns to concept for k = ' + str(k))
+        plt.title(f'Towns to concept for k = {k}')
         plt.legend()
         plt.show()
 
@@ -122,7 +122,7 @@ def main():
 
         # SVD reconstruction temperature
         # if (svd_txt == 'temp'):
-        #     reconstruct_temperatures(unique_towns=unique_towns, df_svd=df_svd, svd_A=svd_A, svd_U=svd_U, svd_S=svd_S, svd_V=svd_V, k=k)
+        #     reconstruct_temperatures(unique_towns=unique_towns, df_svd=df_svd, svd_A=svd_A, svd_U=svd_U, svd_S=svd_S, svd_V=svd_V, k=k, label=svd_txt)
 
 
 # call main function

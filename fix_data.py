@@ -2,17 +2,18 @@ import pandas as pd
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 
-def plot_missing_data(data):
+def plot_data(data, txt):
     new_data = data.loc[(data['Date'] == '24.05.2020.') & (data['Town'] == 'fuzine')]
+    fig = plt.figure(figsize=(12.0, 8.0))
     x_asix = list(new_data['Collected_at'])
     y_asix = list(new_data['Temperature'])
 
     plt.plot(x_asix, y_asix)
     plt.grid()
     plt.xlabel('Collected at')
-    plt.ylabel('Temperature')
-    plt.title('Missing data for Fuzine on 2020.05.24.')
-    plt.show()
+    plt.ylabel('Temperature [°C]')
+    plt.title(f'Fuzine on 2020.05.24. {txt} interpolation')
+    fig.savefig(f'Data/{txt}_interpolation.png')
 
 def fix_nan(data, index, col):
     step = 27
@@ -83,12 +84,12 @@ def main():
             df.at[index, 'Date'] = datetime.strftime(ret_date, "%d.%m.%Y.")
 
 
-    # plot_missing_data(df)
+    plot_data(df, 'before')
     df = df.interpolate(method='linear', asix='Temperature')
     df = df.interpolate(method='linear', asix='Real_feel')
     df = df.interpolate(method='linear', asix='Humidity')
     df.to_csv('./data_pgz_fixed.csv', index=False)
-
+    plot_data(df, 'after')
     start_time = str(df.iloc[0]['Date']) + ' ' + str(df.iloc[0]['Collected_at'])
     end_time = str(df.iloc[-1]['Date']) + ' ' + str(df.iloc[-1]['Collected_at'])
     unique_towns = list(df.sort_values(by='Town')['Town'].unique())

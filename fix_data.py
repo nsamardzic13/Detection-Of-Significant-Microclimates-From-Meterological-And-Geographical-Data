@@ -1,18 +1,26 @@
 import pandas as pd
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
+import numpy as np
 
 def plot_data(data, txt):
-    new_data = data.loc[(data['Date'] == '24.05.2020.') & (data['Town'] == 'fuzine')]
+    town = 'opatija'
+    start_date = '02.07.2020.'
+    end_date = '03.07.2020.'
+    new_data = data.loc[((data['Date'] == start_date) | (data['Date'] == end_date)) & (data['Town'] == town)]
     fig = plt.figure(figsize=(12.0, 8.0))
-    x_asix = list(new_data['Collected_at'])
+    x_asix_ticks = list(new_data['Collected_at'])
+    x_len = len(x_asix_ticks)
+    x_asix = np.arange(0, x_len)
     y_asix = list(new_data['Temperature'])
+
 
     plt.plot(x_asix, y_asix)
     plt.grid()
     plt.xlabel('Collected at')
     plt.ylabel('Temperature [°C]')
-    plt.title(f'Fuzine on 2020.05.24. {txt} interpolation')
+    plt.xticks(x_asix, x_asix_ticks, rotation=90)
+    plt.title(f'{town.capitalize()} on {start_date} & {end_date} {txt} interpolation')
     fig.savefig(f'Data/{txt}_interpolation.png')
 
 def fix_nan(data, index, col):

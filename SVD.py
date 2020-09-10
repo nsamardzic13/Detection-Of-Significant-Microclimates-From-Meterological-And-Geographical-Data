@@ -57,6 +57,12 @@ def reconstruct_temperatures(unique_towns, df_svd, svd_A, svd_U, svd_S, svd_V, k
         fig.savefig(f'./Reconstruct_temp/svd_reconstruction_plot_{label}_{location}.png', dpi=90)
         plt.close(fig)
 
+def trunc_df(df):
+    start = pd.to_datetime('2020-07-01 19:30:00')
+    end = pd.to_datetime('2020-08-01 19:30:00')
+    ret_df = df.loc[start:end]
+    return ret_df
+
 # define main funcion
 def main():
     df_geolocation = import_csv_file()  # call function to import data from files
@@ -64,7 +70,7 @@ def main():
 
     # build 2d array having shape (unique_towns, date+collected_at) and average temperatures
     for svd_txt in ['temp', 'realfeel', 'humidity']:
-        print('Doing analisys for ' + svd_txt)
+        print(f'Doing analisys for {svd_txt}')
         if (svd_txt == 'humidity'):
             sign = '[%]'
         else:
@@ -72,6 +78,7 @@ def main():
         df_svd = pd.read_csv('data_svd_' + svd_txt + '.csv', index_col=0)
         df_svd.index = pd.to_datetime(df_svd.index)
 
+        # df_svd = trunc_df(df_svd)
         svd_A = np.array(df_svd)
 
         # build matrix U, S, V
@@ -121,8 +128,8 @@ def main():
         plt.show()
 
         # SVD reconstruction temperature
-        # if (svd_txt == 'temp'):
-        #     reconstruct_temperatures(unique_towns=unique_towns, df_svd=df_svd, svd_A=svd_A, svd_U=svd_U, svd_S=svd_S, svd_V=svd_V, k=k, label=svd_txt)
+        if (svd_txt == 'temp'):
+            reconstruct_temperatures(unique_towns=unique_towns, df_svd=df_svd, svd_A=svd_A, svd_U=svd_U, svd_S=svd_S, svd_V=svd_V, k=k, label=svd_txt)
 
 
 # call main function

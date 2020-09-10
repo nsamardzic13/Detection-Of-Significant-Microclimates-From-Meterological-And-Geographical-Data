@@ -18,45 +18,58 @@ def get_correlation_matrix(data, towns, field):
     ret_matrix = np.zeros((towns_cnt, towns_cnt))
     for i, town1 in enumerate(towns):
         town1_values = np.array(data.loc[data['Town'] == town1][field])
+        town1_values = (town1_values - np.mean(town1_values)) / (np.std(town1_values) * len(town1_values))
         for j, town2 in enumerate(towns):
             town2_values = np.array(data.loc[data['Town'] == town2][field])
+            town2_values = (town2_values - np.mean(town2_values)) / (np.std(town2_values))
             ret_matrix[i,j] = np.correlate(town1_values, town2_values)[0]
 
     return ret_matrix
 
 def plot_corr(cor, towns, field):
     dict = {}
+    # diag_val = 1.0
     asix_range = np.arange(0, len(towns))
     for i, town in enumerate(towns):
         dict_list = []
         fig = plt.figure(figsize=(13.5,8.0))
         for j in range(len(towns)):
+            current_value = cor[i, j]
             if i == j:
-                plt.bar(asix_range[j], cor[i][j], width=1)
+                plt.bar(asix_range[j], current_value*100, width=1)
             else:
-                min_val = min([cor[i][i],cor[i][j]])
-                max_val = max([cor[i][i],cor[i][j]])
-                diff_res = min_val / max_val
-                if (diff_res > corr_percent):
+                if (current_value > corr_percent):
                     dict_list.append(towns[j])
-                plt.bar(asix_range[j], cor[i][j], width=0.6)
+                plt.bar(asix_range[j], current_value*100, width=0.6)
 
-        plt.axhline(y = cor[i,i], color='black', linewidth=2, alpha=0.4, label=str(cor[i,i]))
-        # plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+        # plt.axhline(y = diag_val, color='black', linewidth=2, alpha=0.4, label=str(current_value))
         plt.xticks(asix_range, towns, rotation=90)
-        plt.yticks([])
+        # plt.ylim([0,100])
+        plt.ylabel('match [%]')
         plt.title(f'Correlation chart for {town.capitalize()}')
         fig.savefig(f'Correlation/{field}_correlation_chart_{town}.png')
         dict[town] = dict_list
 
     return dict
+
 # define main funcion
 def main():
     df_data_pgz, df_geolocation = import_csv_file()   # call function to import data from files
     unique_towns = list(df_geolocation.sort_values(by='Town')['Town'])     # get unique names of towns ordered by name
-
+    x_range = np.arange(0, len(unique_towns))
     for field in fields:
         corr_matrix = get_correlation_matrix(data=df_data_pgz, towns=unique_towns, field=field)
+        fig, ax = plt.subplots(figsize=(15,15))
+        ax.matshow(corr_matrix, cmap=plt.cm.Blues, aspect='auto')
+
+        for i in range(len(unique_towns)):
+            for j in range(len(unique_towns)):
+                val = round(corr_matrix[i,j], 2)
+                ax.text(i, j, str(val), va='center', ha='center')
+
+        plt.xticks(x_range, unique_towns, rotation=90)
+        plt.yticks(x_range, unique_towns)
+        plt.show()
         corr_dict = plot_corr(cor=corr_matrix, towns=unique_towns, field=field)
         for town in unique_towns:
             print(f'{town}: {corr_dict[town]}')
